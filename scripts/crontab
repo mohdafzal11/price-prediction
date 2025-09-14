@@ -1,0 +1,10 @@
+# Run token scraper every 12 hours
+0 */12 * * * cd /app && node /app/scripts/scraper.js >> /app/logs/scraper.log 2>&1
+
+# Run Twitter scraper every 3 hours
+0 */3 * * * cd /app && python3 /app/scripts/twitter_scrapper.py >> /app/logs/twitter_scraper.log 2>&1
+
+# Ensure log files don't grow too large
+0 0 * * * find /app/logs -type f -name "*.log" -size +100M -exec truncate -s 50M {} \;
+
+# Empty line at the end is required for cron 

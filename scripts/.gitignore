@@ -1,0 +1,9 @@
+# Node dependencies
+node_modules
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Yarn cache
+.yarn-cache
+.env

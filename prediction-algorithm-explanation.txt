@@ -1,0 +1,68 @@
+# DroomMarket Price Prediction Algorithm Explanation
+
+The DroomMarket price prediction algorithm is a comprehensive technical analysis-based system that combines multiple indicators and market factors to generate price forecasts for cryptocurrencies. This document explains how the algorithm works and the factors it considers.
+
+## Core Components
+
+The prediction algorithm consists of several key components:
+
+1. **Technical Indicators Calculation**
+   - RSI (Relative Strength Index): Measures momentum by comparing recent gains to recent losses
+   - MACD (Moving Average Convergence Divergence): Trend-following momentum indicator
+   - Bollinger Bands: Volatility bands placed above and below a moving average
+   - Support and Resistance Levels: Key price points where the market historically reverses
+   - Volatility: Measurement of price variation over time
+
+2. **Market Sentiment Analysis**
+   - Combines RSI, MACD histogram, recent price changes, and volume changes
+   - Produces a sentiment score (0-100) and classification (bearish, neutral, bullish)
+
+3. **Time Factor Adjustment**
+   - Longer-term predictions have increased uncertainty
+   - Time factor scales prediction confidence based on forecast duration
+
+4. **Price Range Calculation**
+   - Uses volatility to determine potential price ranges
+   - Adjusts based on technical indicators and market sentiment
+   - Considers support and resistance levels to refine predictions
+
+## Algorithm Flow
+
+1. The algorithm starts by calculating technical indicators from historical price and volume data
+2. It then determines market sentiment by analyzing recent market behavior
+3. A time factor is calculated based on the prediction target date
+4. The base prediction is derived from current price and adjusted by trend strength and volatility
+5. Support and resistance levels are used to fine-tune the prediction
+6. ROI (Return on Investment) is calculated as a percentage change from current price
+7. A confidence score is generated based on sentiment, time factor, and volatility
+
+## Prediction Result
+
+The algorithm outputs a comprehensive prediction that includes:
+- Predicted price: The most likely price target
+- Minimum price: Lower bound of the predicted range
+- Maximum price: Upper bound of the predicted range
+- ROI: Expected return on investment as a percentage
+- Confidence: Confidence level of the prediction (0-100)
+- Sentiment: Market sentiment classification (bearish, neutral, bullish)
+
+## Implementation in DroomMarket
+
+In the DroomMarket application, the prediction algorithm:
+1. Fetches historical price and volume data from the CoinMarketCap API
+2. Processes this data through the technical analysis functions
+3. Generates predictions for different time horizons (5-day, 1-month, 3-month)
+4. Updates the UI with prediction results, including price targets and trend indicators
+5. Color-codes predictions based on whether they are bullish (green) or bearish (red)
+
+The algorithm is designed to be adaptive to market conditions and provides a balanced view of potential price movements based on historical patterns and current market dynamics.
+
+## Limitations
+
+It's important to note that while the algorithm uses sophisticated technical analysis, cryptocurrency markets are highly volatile and influenced by many external factors that cannot be fully predicted, including:
+- Regulatory changes
+- Market sentiment shifts
+- Technological developments
+- Macroeconomic factors
+
+Therefore, predictions should be used as one of many tools for investment decision-making, not as guaranteed outcomes.

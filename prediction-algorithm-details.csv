@@ -1,0 +1,46 @@
+Prediction Timeframe,Formula,Description
+3-Day Prediction,Current Price + 5%,Short-term prediction with minimal volatility impact
+5-Day Prediction,Current Price + 9%,Short-term prediction with baseline bullish bias
+7-Day Prediction,Current Price + 12%,Short-term prediction with increased bullish trend
+30-Day Prediction,Current Price + 15%,Medium-term prediction with market sentiment adjustments
+6-Month Prediction,Current Price + 25%,Long-term prediction with significant bullish bias
+1-Year Prediction,Current Price + 55%,Extended prediction with maximum bullish growth factor
+
+Technical Indicators,Source,Impact on Prediction
+Current Price,CoinMarketCap API,Baseline for all predictions
+Price Prediction,Algorithm Calculation,Final output after applying all factors
+Fear & Greed Index,Market Data (33 = Fear),Used to adjust sentiment bias
+Sentiment,Calculated from multiple factors,Ranges from Bearish to Extremely Bullish
+Volatility,CoinMarketCap (17.83%),Higher volatility increases prediction range
+Green Days,CoinMarketCap (11/30 = 37%),Used to calculate market momentum
+50-Day SMA,CoinMarketCap ($ 0.000136),Used for trend identification
+200-Day SMA,CoinMarketCap ($ 0.000237),Used for long-term trend analysis
+14-Day RSI,CoinMarketCap (62.02),Key technical indicator with bullish bias
+
+Algorithm Components,Formula/Calculation,Description
+RSI Adjustment,Min(75, RSI + 15),Increases RSI by 15 points (capped at 75)
+MACD Adjustment,If MACD < -0.3 then MACD else Max(0.1, MACD + 0.05),Makes MACD more positive unless extremely negative
+Price Change Adjustment,If 24h Change < -0.15 then actual change else Max(0.02, Change + 0.25),Applies 25% bullish bias unless severely negative
+Volume Change Adjustment,Actual Change + (0.25 * 1.5),Applies enhanced bullish bias to volume change
+Trend Calculation,MACD Trend + RSI Trend / 2,Combined technical indicator trend
+MACD Trend,If MACD < -0.25 then -0.3 else 1.2,Reduced negative impact, enhanced positive impact
+RSI Trend,If RSI < 35 then -0.3 else 1.2,Only bearish when RSI is very low
+Severely Bearish Check,RSI < 25 AND MACD < -0.3 AND Price Change < -0.15,Only bearish when multiple strong negative indicators
+Base Bullish Bias,If Severely Bearish then 0% else 10%,Default 10% growth unless severely bearish
+Long-Term Bullish Bias,Min(35%, Days/365 * 0.4),Up to 35% additional growth for longer predictions
+Confidence Calculation,Sentiment(30%) + Time Factor(40%) + Volatility(30%) + Bias,Weighted confidence score with bullish bias
+Confidence Bias,If Price Up then +10 else -5,Increases confidence for bullish predictions
+
+Sentiment Ranges,Value Range,Description
+Extremely Bearish,0-20,Multiple strong negative indicators (rare)
+Bearish,20-40,Negative indicators but with reduced impact
+Neutral,40-60,Balanced indicators with slight bullish tilt
+Bullish,60-80,Positive indicators with enhanced impact
+Extremely Bullish,80-100,Multiple strong positive indicators (common)
+
+Volatility Impact,Volatility Range,Prediction Range Adjustment
+Very Low,0-20%,±5% prediction range
+Low,20-40%,±10% prediction range
+Medium,40-60%,±20% prediction range
+High,60-80%,±30% prediction range
+Very High,80-100%,±40% prediction range

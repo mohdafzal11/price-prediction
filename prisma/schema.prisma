@@ -1,0 +1,385 @@
+// This file contains the Prisma schema for both DMC and ETF tracker databases
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+// Enums for better type safety
+// Network/Contract Type Model for dynamic contract types
+model NetworkType {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique  // e.g., "ERC20", "BEP20", etc.
+  network     String    // e.g., "Ethereum", "BSC", etc.
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  addresses   TokenNetworkAddress[]
+
+  @@index([network])
+  @@index([isActive])
+}
+
+// Junction Model for Token-Network relationship
+model TokenNetworkAddress {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  token         Token       @relation(fields: [tokenId], references: [id])
+  tokenId       String      @db.ObjectId
+  networkType   NetworkType @relation(fields: [networkTypeId], references: [id])
+  networkTypeId String      @db.ObjectId
+  address       String
+  addedAt       DateTime    @default(now())
+  isActive      Boolean     @default(true)
+
+  @@unique([tokenId, networkTypeId, address])
+  @@index([networkTypeId])
+  @@index([tokenId])
+  @@index([address])
+}
+
+enum ETFType {
+  SPOT
+  FUTURES
+}
+
+enum ETFStatus {
+  LIVE
+  STOPPED
+}
+
+// Dynamic Category Model
+model Category {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  name          String         @unique
+  slug          String         @unique  // URL-friendly version of name
+  description   String?
+  isActive      Boolean        @default(true)
+  displayOrder  Int?           // For custom ordering in UI
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  tokens        TokenToCategory[]
+
+  @@index([isActive, displayOrder])
+}
+
+// Junction Model for Token-Category relationship
+model TokenToCategory {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  token       Token     @relation(fields: [tokenId], references: [id])
+  tokenId     String    @db.ObjectId
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  String    @db.ObjectId
+  addedAt     DateTime  @default(now())
+
+  @@unique([tokenId, categoryId])
+  @@index([categoryId])
+  @@index([tokenId])
+}
+
+// User Authentication and Profile Models
+model User {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  email         String      @unique
+  username      String
+  displayName   String?
+  password      String      // Hashed password
+  image         String?     // Avatar URL
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  isActive      Boolean     @default(true)
+  portfolios    Portfolio[]
+  wishlists     Wishlist[]
+
+  @@unique([username])
+  @@index([isActive])
+}
+
+// Portfolio Management Models
+model Portfolio {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String      @db.ObjectId
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  isActive      Boolean     @default(true)
+  holdings      PortfolioHolding[]
+
+  @@unique([userId, name])
+  @@index([isActive])
+}
+
+model PortfolioHolding {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  portfolio     Portfolio   @relation(fields: [portfolioId], references: [id])
+  portfolioId   String      @db.ObjectId
+  token         Token       @relation(fields: [tokenId], references: [id])
+  tokenId       String      @db.ObjectId
+  amount        Float
+  buyPrice      Float?      // Average buy price in USD
+  lastUpdated   DateTime    @updatedAt
+
+  @@unique([portfolioId, tokenId])
+  @@index([portfolioId])
+  @@index([tokenId])
+}
+
+// Wishlist Models
+model Wishlist {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String      @db.ObjectId
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  isActive      Boolean     @default(true)
+  tokens        WishlistToken[]
+
+  @@unique([userId, name])
+  @@index([isActive])
+}
+
+model WishlistToken {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  wishlist      Wishlist    @relation(fields: [wishlistId], references: [id])
+  wishlistId    String      @db.ObjectId
+  token         Token       @relation(fields: [tokenId], references: [id])
+  tokenId       String      @db.ObjectId
+  targetPrice   Float?      // Price alert target
+  addedAt       DateTime    @default(now())
+  notes         String?
+
+  @@unique([wishlistId, tokenId])
+  @@index([wishlistId])
+  @@index([tokenId])
+}
+
+// DMC Models
+model Token {
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  ticker           String           
+  name             String
+  rank             Int?
+  currentPrice     CurrentPrice
+  marketData       MarketData
+  networkAddresses TokenNetworkAddress[]
+  categories       TokenToCategory[] // Changed to reference junction model
+  socials          Socials
+  description      String?
+  tradingMarkets   TradingMarket[]
+  graphUrls        GraphUrls
+  cmcId            String? @unique
+  cmcSlug          String?
+  priceChanges     PriceChanges
+  etfRecords       ETFRecord[]
+  history          TokenHistory[]
+  pricePoints      TokenPricePoint[]  // Relation to individual price points
+  portfolioHoldings PortfolioHolding[]
+  wishlistTokens    WishlistToken[]
+  faqs             Faqs[]           // Relation to FAQ records
+  inSitemap        Boolean          @default(false) // Flag to track if token has been included in sitemap
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([rank])
+  @@index([ticker, name])
+  @@index([marketData])
+}
+
+// Rest of the types remain the same
+type CurrentPrice {
+  usd         Float
+  lastUpdated DateTime
+}
+
+type MarketData {
+  marketCap         Float?
+  fdv               Float?
+  volume24h         Float?
+  totalSupply       Float?
+  circulatingSupply Float?
+  maxSupply         Float?
+}
+
+type Socials {
+  website       String[]   @default([])
+  twitter       String[]   @default([])
+  telegram      String[]   @default([])
+  discord       String[]   @default([])
+  github        String[]   @default([])
+  explorer      String[]   @default([])
+  facebook      String[]   @default([])
+  announcement  String[]   @default([])
+  chat          String[]   @default([])
+}
+
+type TradingMarket {
+  exchange   String
+  pair       String
+  volume24h  Float
+}
+
+type GraphUrls {
+  price      String?
+  marketCap  String?
+}
+
+type PriceChanges {
+  hour1       Float?
+  day1        Float?
+  month1      Float?
+  year1       Float?
+  week1       Float?
+  lastUpdated DateTime
+}
+
+type ETFRecord {
+  etfId            String  @db.ObjectId
+  relationshipType String
+}
+
+// Rest of the models remain the same...
+model TokenHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     Token    @relation(fields: [tokenId], references: [id])
+  tokenId   String   @db.ObjectId
+  timestamp DateTime
+  price     Float
+  marketCap Float?
+  volume    Float?
+
+  @@index([tokenId, timestamp(sort: Desc)])
+  @@index([timestamp(sort: Desc)])
+}
+
+// Model for storing individual price points for tokens
+model TokenPricePoint {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  token           Token    @relation(fields: [tokenId], references: [id])
+  tokenId         String   @db.ObjectId
+  cmcId           String?  // Store CMC ID for reference
+  timestamp       DateTime // Timestamp of the price point
+  price           Float    // Price in USD
+  volume          Float?   // 24h volume (optional)
+  marketCap       Float?   // Market cap (optional)
+  percentChange24h Float?  // 24h percent change (optional)
+  createdAt       DateTime @default(now())
+  
+  @@unique([tokenId, timestamp]) // Ensure we don't have duplicate price points
+  @@index([cmcId])
+  @@index([tokenId])
+  @@index([timestamp])
+  @@index([tokenId, timestamp(sort: Desc)]) // Optimized for querying token's price history
+}
+
+enum FaqGeneratedBy {
+  AI
+  USER
+}
+
+
+model Faqs {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  token       Token    @relation(fields: [tokenId], references: [id])
+  tokenId     String   @db.ObjectId
+  order       Int
+  question    String
+  answer      String
+  generatedBy FaqGeneratedBy   @default(AI)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([tokenId, order])
+  @@index([tokenId])
+  @@index([generatedBy])
+}
+
+
+model Exchange {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  name              String         @unique
+  slug              String         @unique
+  logo              String?
+  rank              Int?
+  description       String?
+  dateLaunched      DateTime?
+  notice            String?
+  countries         String[]
+  fiats             String[]
+  tags              ExchangeTag[] 
+  type              String?
+  makerFee          Float?
+  takerFee          Float?
+  weeklyVisits      Int?
+  spotVolumeUsd     Float?
+  volumeLastUpdated DateTime?
+  cmcId             Int?
+  quote             ExchangeQuote?
+  urls              ExchangeUrls
+  assets            ExchangeAsset[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([name, slug])
+}
+
+type ExchangeTag {
+  name   String
+  slug   String
+  group  String
+}
+
+type ExchangeQuote {
+  volume24h                  Float?
+  volume24hAdjusted         Float?
+  volume7d                   Float?
+  volume30d                  Float?
+  percentChangeVolume24h    Float?
+  percentChangeVolume7d     Float?
+  percentChangeVolume30d    Float?
+  effectiveLiquidity24h     Float?
+  derivativeVolumeUsd       Float?
+  spotVolumeUsd             Float?
+}
+
+type ExchangeUrls {
+  website    String[]
+  twitter    String[]
+  blog       String[]
+  chat       String[]
+  fee        String[]
+}
+
+// Exchange Assets (Proof of Reserves)
+model ExchangeAsset {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  exchange      Exchange  @relation(fields: [exchangeId], references: [id])
+  exchangeId    String    @db.ObjectId
+  walletAddress String
+  balance       Float
+  platform      Platform
+  currency      Currency
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([exchangeId])
+  @@index([walletAddress])
+}
+
+type Platform {
+  cryptoId  Int
+  symbol    String
+  name      String
+}
+
+type Currency {
+  cryptoId  Int
+  priceUsd  Float
+  symbol    String
+  name      String
+}

@@ -1,0 +1,47 @@
+/**
+ * Global CSS to ensure numbers use the system font throughout the application
+ */
+
+/* Define a font face for numbers */
+@font-face {
+  font-family: 'NumbersFont';
+  src: local(-apple-system),
+       local(system-ui),
+       local(BlinkMacSystemFont),
+       local("Segoe UI"),
+       local(Roboto),
+       local("Helvetica Neue"),
+       local(Arial),
+       local(sans-serif);
+  unicode-range: U+0030-0039, U+002E, U+002C, U+0025, U+002B, U+002D; /* Numbers, decimal point, comma, percent, plus, minus */
+}
+
+/* Apply tabular numbers feature for consistent width */
+body {
+  -webkit-font-feature-settings: "tnum";
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* Target common number-containing elements */
+[class*="price"], [class*="Price"],
+[class*="value"], [class*="Value"],
+[class*="amount"], [class*="Amount"],
+[class*="stat"], [class*="Stat"],
+[class*="count"], [class*="Count"],
+[class*="percent"], [class*="Percent"],
+[class*="number"], [class*="Number"] {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* Target numeric content */
+.number {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* Ensure inputs that contain numbers use the system font */
+input[type="number"],
+input[type="text"][inputmode="numeric"],
+input[type="text"][inputmode="decimal"] {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}

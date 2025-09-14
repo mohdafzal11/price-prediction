@@ -1,0 +1,28 @@
+{
+  "extends": ["next/core-web-vitals", "eslint:recommended"],
+  "rules": {
+    "react-hooks/rules-of-hooks": "warn",
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-img-element": "off",
+    "react/display-name": "off",
+    "no-unused-vars": "warn",
+    "no-undef": "warn",
+    "no-redeclare": "warn",
+    "no-import-assign": "warn",
+    "no-mixed-spaces-and-tabs": "warn",
+    "no-useless-escape": "warn",
+    "no-extra-semi": "warn",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "globals": {
+    "NodeJS": "readonly",
+    "React": "readonly",
+    "Interpolation": "readonly",
+    "ThemeProps": "readonly",
+    "ThemedStyledProps": "readonly",
+    "Set": "readonly",
+    "prisma": "readonly",
+    "CURRENCIES": "readonly",
+    "circulatingSupply": "readonly"
+  }
+}

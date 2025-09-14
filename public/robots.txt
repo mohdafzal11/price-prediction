@@ -1,0 +1,12 @@
+# DroomMarket Robots.txt
+User-agent: *
+Allow: /price
+Allow: /price/sitemap.xml
+Allow: /price/*
+Allow: /price/sitemap/*
+
+# Disallow API endpoints
+Disallow: /price/api/
+
+# Sitemap
+Sitemap: https://droomdroom.com/price/sitemap.xml

@@ -1,0 +1,16 @@
+# Set environment variables for cron
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/app/node_modules/.bin:/venv/bin
+SHELL=/bin/sh
+VIRTUAL_ENV=/venv
+
+# Run the JavaScript scraper every 5 hours run at the beginning now and then every 5 hours
+0 * * * * cd /app && echo "$(date): Running JavaScript scraper" >> /app/logs/scraper.log && node scripts/scraper.js >> /app/logs/scraper.log 2>> /app/logs/scraper-error.log
+
+
+# Run the Python Twitter scraper every 15 minutes
+*/15 * * * * cd /app && echo "$(date): Running Twitter scraper" >> /app/logs/twitter_scraper.log && python3 scripts/twitter_scraper.py >> /app/logs/twitter_scraper.log 2>> /app/logs/twitter_scraper-error.log
+
+# Add a daily log rotation job to prevent logs from growing too large
+0 0 * * * find /app/logs -type f -name "*.log" -size +10M -exec sh -c 'mv "$1" "$1.$(date +\%Y\%m\%d)" && touch "$1"' sh {} \;
+
+# Empty line at the end is required for crontab 

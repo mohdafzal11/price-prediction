@@ -13,16 +13,17 @@ import {
     ButtonText,
     ChevronIcon
 } from './CryptoChipCard.styled';
-import { generateTokenUrl } from 'utils/url';
 import { HeaderContainer } from 'components/Header/Header.styled';
 import { Button } from 'styled/elements/Button';
 import { ChevronDown } from 'lucide-react';
 import CustomLink from 'components/CustomLink/CustomLink';
+import Tokenomics from 'components/CoinSections/Tokenomics';
 
 interface Coin {
     id: string;
     ticker: string;
     name: string;
+    slug: string;
     price: number;
     priceChange: number | null | { ["24h"]?: number };
     cmcId?: string;
@@ -67,7 +68,7 @@ const CryptoChipCard: React.FC<CryptoChipCardProps> = ({ heading, coins}) => {
            <CryptoList>
                 {coins.map((coin) => (
                     <div key={coin.id}>
-                            <CustomLink style={{ textDecoration: 'none'  }} href={`/${generateTokenUrl(coin.name, coin.ticker)}`} is_a={true}>
+                            <CustomLink style={{ textDecoration: 'none'  }} href={`/${coin.slug}`} is_a={true}>
                                 <CryptoItem>
                                     <CoinLogo 
                                         as="img"

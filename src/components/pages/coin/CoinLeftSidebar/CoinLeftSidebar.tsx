@@ -78,6 +78,7 @@ interface coin {
   ticker: string;
   cmdId: string;
   name: string;
+  slug: string;
   rank?: number;
   currentPrice: {
     usd: number;
@@ -552,10 +553,7 @@ const CoinLeftSidebar = ({ coin, isSticky, loading }: CoinLeftSidebarProps) => {
   const getConverterUrl = () => {
     const fiatCurrencyName = CURRENCIES[currency].name.toLowerCase();
     const fiatCurrencySymbol = CURRENCIES[currency].code.toLowerCase();
-    return `https://droomdroom.com/converter/${generateTokenUrl(
-      coin.name,
-      coin.ticker
-    )}/${generateTokenUrl(fiatCurrencyName, fiatCurrencySymbol)}`;
+    return `https://droomdroom.com/converter/${coin.slug}/${generateTokenUrl(fiatCurrencyName, fiatCurrencySymbol)}`;
   };
 
   const handleSwap = () => {

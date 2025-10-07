@@ -14,7 +14,7 @@ import { Container } from "styled/elements/Container";
 import { capitalize } from "lodash";
 import prisma from "../../src/lib/prisma";
 import { formatCryptoPrice, formatLargeNumber } from "../../src/utils/format";
-import { generateTokenUrl, parseTokenSlug } from "utils/url";
+import { parseTokenSlug } from "utils/url";
 import { getApiUrl, getPageUrl } from "utils/config";
 import CoinLeftSidebar from "components/pages/coin/CoinLeftSidebar/CoinLeftSidebar";
 import CoinRightSidebar from "components/pages/coin/CoinRightSidebar/CoinRightSidebar";
@@ -87,9 +87,9 @@ export const getStaticProps = async (context: any) => {
   }
   try {
     let inCache: any = null;
-    
+
     // Only try Redis during runtime, not during build
-    if (process.env.NODE_ENV !== 'production' || process.env.REDIS_URL) {
+    if (process.env.NODE_ENV !== "production" || process.env.REDIS_URL) {
       try {
         inCache = await redisHandler.get(`droomdroom_coin_${cleanSlug}`);
       } catch (redisError) {
@@ -97,7 +97,7 @@ export const getStaticProps = async (context: any) => {
         inCache = null;
       }
     }
-    
+
     if (inCache) {
       const parsedCache =
         typeof inCache === "string" ? JSON.parse(inCache) : inCache;
@@ -147,20 +147,10 @@ export const getStaticProps = async (context: any) => {
     const { name, ticker } = parsed;
     const coin = await prisma.token.findFirst({
       where: {
-        AND: [
-          {
-            ticker: {
-              equals: ticker,
-              mode: "insensitive",
-            },
-          },
-          {
-            name: {
-              equals: name,
-              mode: "insensitive",
-            },
-          },
-        ],
+        slug: {
+          equals: cleanSlug,
+          mode: "insensitive",
+        },
       },
       include: {
         currentPrice: true,
@@ -358,20 +348,29 @@ export const getStaticProps = async (context: any) => {
       let predictionData = null;
       if (flexibleCoin.cmcId) {
         try {
-          console.log(`Fetching predictions for ${flexibleCoin.cmcId} during static generation`);
+          console.log(
+            `Fetching predictions for ${flexibleCoin.cmcId} during static generation`
+          );
           const predictionResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/coin/prediction/${flexibleCoin.cmcId}`,
+            `${
+              process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+            }/api/coin/prediction/${flexibleCoin.cmcId}`,
             {
               headers: {
-                'X-Precompute-Key': process.env.PRECOMPUTE_AUTH_KEY || 'secure-precompute-key-123'
-              }
+                "X-Precompute-Key":
+                  process.env.PRECOMPUTE_AUTH_KEY ||
+                  "secure-precompute-key-123",
+              },
             }
           );
           if (predictionResponse.ok) {
             predictionData = await predictionResponse.json();
           }
         } catch (error) {
-          console.warn(`Failed to fetch predictions for ${flexibleCoin.cmcId}:`, error);
+          console.warn(
+            `Failed to fetch predictions for ${flexibleCoin.cmcId}:`,
+            error
+          );
         }
       }
 
@@ -481,13 +480,18 @@ export const getStaticProps = async (context: any) => {
     let predictionData = null;
     if (coin.cmcId) {
       try {
-        console.log(`Fetching predictions for ${coin.cmcId} during static generation`);
+        console.log(
+          `Fetching predictions for ${coin.cmcId} during static generation`
+        );
         const predictionResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/coin/prediction/${coin.cmcId}`,
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+          }/api/coin/prediction/${coin.cmcId}`,
           {
             headers: {
-              'X-Precompute-Key': process.env.PRECOMPUTE_AUTH_KEY || 'secure-precompute-key-123'
-            }
+              "X-Precompute-Key":
+                process.env.PRECOMPUTE_AUTH_KEY || "secure-precompute-key-123",
+            },
           }
         );
         if (predictionResponse.ok) {
@@ -565,6 +569,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         },
       },
       select: {
+        slug: true,
         name: true,
         ticker: true,
       },
@@ -578,13 +583,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     const standardPaths = tokens.map((token) => ({
       params: {
-        slug: generateTokenUrl(token.name, token.ticker),
+        slug: token.slug,
       },
     }));
 
     const predictionPaths = tokens.map((token) => ({
       params: {
-        slug: `${generateTokenUrl(token.name, token.ticker)}/prediction`,
+        slug: `${token.slug}/prediction`,
       },
     }));
 
@@ -637,7 +642,9 @@ const Coin = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const sections = useRef<{ [key: string]: HTMLElement }>({});
   const { slug } = router.query;
-  const [predictionData, setPredictionData] = useState<any>(initialPredictionData);
+  const [predictionData, setPredictionData] = useState<any>(
+    initialPredictionData
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -1139,7 +1146,7 @@ const Coin = ({
     name: coin.name,
     description: schemaDescription,
     category: getCategoryString(coin),
-    url: getPageUrl(`/${generateTokenUrl(coin.name, coin.ticker)}}`),
+    url: getPageUrl(coin.slug),
     image: ogImageUrl,
     logo: ogImageUrl,
     brand: {
@@ -1210,7 +1217,7 @@ const Coin = ({
   const webPageSchema = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    url: getPageUrl(`/${generateTokenUrl(coin.name, coin.ticker)}`),
+    url: getPageUrl(`/${coin.slug}`),
     name: `${capitalize(coin.name)} (${
       coin.ticker
     }) Price Prediction 2025–2055`,
@@ -1219,7 +1226,7 @@ const Coin = ({
       "@type": "FinancialProduct",
       name: coin.name,
       description: schemaDescription,
-      url: getPageUrl(`/${generateTokenUrl(coin.name, coin.ticker)}`),
+      url: getPageUrl(`/${coin.slug}`),
     },
   };
 
@@ -1298,47 +1305,68 @@ const Coin = ({
 
   const getSafeSEOContent = () => {
     const hasValidData = coin && coin.name && coin.ticker && !loadError;
-    
+
     // Generate prediction-rich content for SEO
     let predictionContent = "";
     let technicalAnalysis = "";
-    
+
     if (predictionData && predictionData.predictions) {
       const predictions = predictionData.predictions;
-      
+
       // Create detailed prediction text for SEO
       const shortTermPredictions = [];
       const longTermPredictions = [];
-      
+
       if (predictions.threeDay) {
-        shortTermPredictions.push(`3-day forecast: $${formatCryptoPrice(predictions.threeDay.price)} (${predictions.threeDay.roi > 0 ? '+' : ''}${predictions.threeDay.roi.toFixed(1)}%)`);
+        shortTermPredictions.push(
+          `3-day forecast: $${formatCryptoPrice(predictions.threeDay.price)} (${
+            predictions.threeDay.roi > 0 ? "+" : ""
+          }${predictions.threeDay.roi.toFixed(1)}%)`
+        );
       }
       if (predictions.oneMonth) {
-        shortTermPredictions.push(`1-month projection: $${formatCryptoPrice(predictions.oneMonth.price)} (${predictions.oneMonth.roi > 0 ? '+' : ''}${predictions.oneMonth.roi.toFixed(1)}%)`);
+        shortTermPredictions.push(
+          `1-month projection: $${formatCryptoPrice(
+            predictions.oneMonth.price
+          )} (${
+            predictions.oneMonth.roi > 0 ? "+" : ""
+          }${predictions.oneMonth.roi.toFixed(1)}%)`
+        );
       }
       if (predictions.oneYear) {
-        longTermPredictions.push(`2025 forecast: $${formatCryptoPrice(predictions.oneYear.price)} (${predictions.oneYear.roi > 0 ? '+' : ''}${predictions.oneYear.roi.toFixed(1)}% ROI)`);
+        longTermPredictions.push(
+          `2025 forecast: $${formatCryptoPrice(predictions.oneYear.price)} (${
+            predictions.oneYear.roi > 0 ? "+" : ""
+          }${predictions.oneYear.roi.toFixed(1)}% ROI)`
+        );
       }
-      
-      predictionContent = [...shortTermPredictions, ...longTermPredictions].join(', ');
-      
+
+      predictionContent = [
+        ...shortTermPredictions,
+        ...longTermPredictions,
+      ].join(", ");
+
       // Add technical analysis if available
       if (predictionData.technicalIndicators) {
         const indicators = predictionData.technicalIndicators;
-        technicalAnalysis = `Technical analysis shows RSI at ${indicators.rsi14?.toFixed(1) || 'N/A'}, ${indicators.fearGreedZone || 'Neutral'} market sentiment`;
+        technicalAnalysis = `Technical analysis shows RSI at ${
+          indicators.rsi14?.toFixed(1) || "N/A"
+        }, ${indicators.fearGreedZone || "Neutral"} market sentiment`;
       }
     }
 
     const safeTitle = hasValidData
-      ? `${capitalize(coin.name)} (${coin.ticker}) Price Prediction 2025, 2026-2055 | DroomDroom`
+      ? `${capitalize(coin.name)} (${
+          coin.ticker
+        }) Price Prediction 2025, 2026-2055 | DroomDroom`
       : "Price Prediction 2025, 2026-2055 | DroomDroom";
 
     const baseDescription = hasValidData
       ? `Latest ${coin.name} price prediction analysis across short, medium, and long-term horizons, including detailed forecasts for 2025, 2030, and the years ahead.`
       : "Latest cryptocurrency price prediction analysis across short, medium, and long-term horizons, including detailed forecasts for 2025, 2030, and the years ahead.";
-    
+
     // Enhance description with prediction data
-    const enhancedDescription = predictionContent 
+    const enhancedDescription = predictionContent
       ? `${baseDescription} ${predictionContent}. ${technicalAnalysis}`
       : baseDescription;
 
@@ -1348,9 +1376,9 @@ const Coin = ({
 
     // Create safe canonical URL
     const safeCanonical = hasValidData
-      ? getPageUrl(`/${generateTokenUrl(coin.name, coin.ticker)}`)
+      ? getPageUrl(`/${coin.slug}`)
       : coin?.name && coin?.ticker
-      ? getPageUrl(`/${generateTokenUrl(coin.name, coin.ticker)}`)
+      ? getPageUrl(`/${coin.slug}`)
       : getPageUrl("/");
 
     // Create safe og image
@@ -1367,65 +1395,96 @@ const Coin = ({
       canonical: safeCanonical,
       ogImage: safeOgImage,
       predictionContent,
-      technicalAnalysis
+      technicalAnalysis,
     };
   };
 
   const seoContent = getSafeSEOContent();
-  
+
   // Generate SEO-optimized prediction summary for crawlers
   const renderPredictionSummary = () => {
     if (!predictionData || !predictionData.predictions) return null;
-    
+
     const predictions = predictionData.predictions;
-    
+
     return (
-      <div style={{ display: 'none' }} id="seo-prediction-content">
-        <h1>{coin.name} ({coin.ticker}) Price Prediction Analysis 2025-2055</h1>
-        
+      <div style={{ display: "none" }} id="seo-prediction-content">
+        <h1>
+          {coin.name} ({coin.ticker}) Price Prediction Analysis 2025-2055
+        </h1>
+
         <h2>Short-term Price Forecasts</h2>
         {predictions.threeDay && (
           <p>
-            Our 3-day {coin.name} prediction indicates a target price of ${formatCryptoPrice(predictions.threeDay.price)}, 
-            representing a {predictions.threeDay.roi > 0 ? 'potential gain' : 'potential decline'} of {Math.abs(predictions.threeDay.roi).toFixed(1)}%. 
-            The confidence level for this short-term forecast is {predictions.threeDay.confidence}%, with market sentiment showing {predictions.threeDay.sentiment} indicators.
+            Our 3-day {coin.name} prediction indicates a target price of $
+            {formatCryptoPrice(predictions.threeDay.price)}, representing a{" "}
+            {predictions.threeDay.roi > 0
+              ? "potential gain"
+              : "potential decline"}{" "}
+            of {Math.abs(predictions.threeDay.roi).toFixed(1)}%. The confidence
+            level for this short-term forecast is{" "}
+            {predictions.threeDay.confidence}%, with market sentiment showing{" "}
+            {predictions.threeDay.sentiment} indicators.
           </p>
         )}
-        
+
         {predictions.oneMonth && (
           <p>
-            The 1-month {coin.name} price prediction projects a value of ${formatCryptoPrice(predictions.oneMonth.price)}, 
-            suggesting {predictions.oneMonth.roi > 0 ? 'bullish' : 'bearish'} momentum with an expected ROI of {predictions.oneMonth.roi.toFixed(1)}%.
+            The 1-month {coin.name} price prediction projects a value of $
+            {formatCryptoPrice(predictions.oneMonth.price)}, suggesting{" "}
+            {predictions.oneMonth.roi > 0 ? "bullish" : "bearish"} momentum with
+            an expected ROI of {predictions.oneMonth.roi.toFixed(1)}%.
           </p>
         )}
-        
+
         <h2>Long-term Investment Outlook</h2>
         {predictions.oneYear && (
           <p>
-            Looking ahead to 2025, our comprehensive analysis suggests {coin.name} could reach ${formatCryptoPrice(predictions.oneYear.price)}, 
-            representing a significant {predictions.oneYear.roi > 0 ? 'growth opportunity' : 'market correction'} of {Math.abs(predictions.oneYear.roi).toFixed(1)}%. 
-            This long-term forecast considers market cycles, adoption trends, and technical fundamentals.
+            Looking ahead to 2025, our comprehensive analysis suggests{" "}
+            {coin.name} could reach $
+            {formatCryptoPrice(predictions.oneYear.price)}, representing a
+            significant{" "}
+            {predictions.oneYear.roi > 0
+              ? "growth opportunity"
+              : "market correction"}{" "}
+            of {Math.abs(predictions.oneYear.roi).toFixed(1)}%. This long-term
+            forecast considers market cycles, adoption trends, and technical
+            fundamentals.
           </p>
         )}
-        
+
         {predictionData.technicalIndicators && (
           <>
             <h2>Technical Analysis Summary</h2>
             <p>
-              Current technical indicators for {coin.name} show an RSI of {predictionData.technicalIndicators.rsi14?.toFixed(1) || 'N/A'}, 
-              indicating {predictionData.technicalIndicators.rsi14 > 70 ? 'overbought' : predictionData.technicalIndicators.rsi14 < 30 ? 'oversold' : 'balanced'} conditions. 
-              The Fear & Greed Index reflects {predictionData.technicalIndicators.fearGreedZone} sentiment in the market. 
-              Recent performance shows {predictionData.technicalIndicators.greenDays} positive trading days, 
-              {predictionData.technicalIndicators.isProfitable ? 'suggesting favorable' : 'indicating mixed'} market conditions for investment.
+              Current technical indicators for {coin.name} show an RSI of{" "}
+              {predictionData.technicalIndicators.rsi14?.toFixed(1) || "N/A"},
+              indicating{" "}
+              {predictionData.technicalIndicators.rsi14 > 70
+                ? "overbought"
+                : predictionData.technicalIndicators.rsi14 < 30
+                ? "oversold"
+                : "balanced"}{" "}
+              conditions. The Fear & Greed Index reflects{" "}
+              {predictionData.technicalIndicators.fearGreedZone} sentiment in
+              the market. Recent performance shows{" "}
+              {predictionData.technicalIndicators.greenDays} positive trading
+              days,
+              {predictionData.technicalIndicators.isProfitable
+                ? "suggesting favorable"
+                : "indicating mixed"}{" "}
+              market conditions for investment.
             </p>
           </>
         )}
-        
+
         <h2>Investment Considerations</h2>
         <p>
-          These {coin.name} price predictions are based on comprehensive technical analysis, market trends, and algorithmic modeling. 
-          Cryptocurrency investments carry inherent risks, and past performance does not guarantee future results. 
-          Consider your risk tolerance and conduct additional research before making investment decisions.
+          These {coin.name} price predictions are based on comprehensive
+          technical analysis, market trends, and algorithmic modeling.
+          Cryptocurrency investments carry inherent risks, and past performance
+          does not guarantee future results. Consider your risk tolerance and
+          conduct additional research before making investment decisions.
         </p>
       </div>
     );
@@ -1456,7 +1515,7 @@ const Coin = ({
               <CoinLeftSidebar
                 coin={coin}
                 isSticky={isSticky}
-                loading = {false}
+                loading={false}
               />
             </ErrorBoundary>
 

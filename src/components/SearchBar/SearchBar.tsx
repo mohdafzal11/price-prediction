@@ -4,7 +4,6 @@ import { useRouter } from 'next/router';
 import debounce from 'lodash/debounce';
 import axios from 'axios';
 import Link from 'next/link';
-import { generateTokenUrl } from '../../utils/url';
 import { getApiUrl, getCmcImageUrl, getPageUrl } from '../../utils/config';
 import { ThemeProvider, useTheme } from 'styled-components';
 import ReactDOM from 'react-dom/client';
@@ -35,6 +34,7 @@ interface SearchBarProps {
 interface TokenSearchResult {
     id: string;
     name: string;
+    slug: string;
     ticker: string;
     cmcId: string;
 }
@@ -172,7 +172,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search assets...' 
     const handleResultClick = (result: TokenSearchResult) => {
         console.log('Result clicked:', result);
         setShowResults(false);
-        const url = `/${generateTokenUrl(result.name, result.ticker)}`;
+        const url = `/${result.slug}`;
         console.log('Navigating to:', url);
         router.push(url);
     };
@@ -213,7 +213,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search assets...' 
                                 {results.map((result) => (
                                     <S.ResultItem 
                                         key={result.id}
-                                        href={`/${generateTokenUrl(result.name, result.ticker)}`}
+                                        href={`/${result.slug}`}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             handleResultClick(result);

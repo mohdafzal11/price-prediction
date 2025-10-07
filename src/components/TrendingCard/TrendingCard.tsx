@@ -9,7 +9,6 @@ import {
   TokenPrice,
   PriceChange
 } from './TrendingCard.styled';
-import { generateTokenUrl } from 'utils/url';
 import Link from 'next/link';
 import CustomLink from 'components/CustomLink/CustomLink';
 
@@ -26,7 +25,7 @@ export default function TrendingCard({ tokens, status, title }: {
             <TrendingCardList>
                 {tokens.map((token, index) => (
                     <TrendingCardItem key={index}>
-                        <CustomLink href={generateTokenUrl(token.name, token.ticker)} passHref>
+                        <CustomLink href={token.slug} passHref>
                             <TokenName>
                                 <span style={{ marginRight: 8 }}>
                                     {index + 1}

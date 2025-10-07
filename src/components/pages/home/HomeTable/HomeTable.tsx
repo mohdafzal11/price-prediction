@@ -4,11 +4,12 @@ import PercentageChange from "components/PercentageChange/PercentageChange";
 import PriceDisplay from "components/PriceDisplay/PriceDisplay";
 import { useMemo, useRef, useEffect } from "react";
 import { useTheme } from "styled-components";
-import { generateTokenUrl } from "../../../../utils/url";
 import { getCmcImageUrl } from "../../../../utils/config";
 import { useCurrency } from "../../../../context/CurrencyContext";
 import CustomLink from "components/CustomLink/CustomLink";
 import { Token } from "types";
+import { TableRow } from "components/CoinMainContent/CoinMainContent.styled";
+import { RowSelection } from "@tanstack/react-table";
 
 interface HomeTableProps {
   initialTokens: Token[];
@@ -142,7 +143,7 @@ const HomeTable: React.FC<HomeTableProps> = ({ initialTokens }) => {
 
           return (
             <CustomLink
-              href={generateTokenUrl(row.original.name, row.original.ticker)}
+              href={row.original.slug}
             >
               <S.NameWrapper>
                 <img
@@ -319,7 +320,7 @@ const HomeTable: React.FC<HomeTableProps> = ({ initialTokens }) => {
       data={initialTokens}
       columns={columns}
       enableSorting={false}
-      getRowLink={(row) => generateTokenUrl(row.name, row.ticker)}
+      getRowLink={(row) => `/${row.slug}`}
     />
   );
 };

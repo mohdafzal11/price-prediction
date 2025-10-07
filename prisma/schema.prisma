@@ -56,7 +56,7 @@ enum ETFStatus {
 model Category {
   id            String         @id @default(auto()) @map("_id") @db.ObjectId
   name          String         @unique
-  slug          String         @unique  // URL-friendly version of name
+  slug          String         @unique  
   description   String?
   isActive      Boolean        @default(true)
   displayOrder  Int?           // For custom ordering in UI
@@ -162,6 +162,7 @@ model WishlistToken {
 // DMC Models
 model Token {
   id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  slug             String
   ticker           String           
   name             String
   rank             Int?
@@ -187,6 +188,7 @@ model Token {
   updatedAt        DateTime         @updatedAt
 
   @@index([rank])
+  @@index([slug])
   @@index([ticker, name])
   @@index([marketData])
 }

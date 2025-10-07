@@ -41,6 +41,7 @@ interface PriceData {
 interface SearchResult {
   id: string;
   name: string;
+  slug: string;
   ticker: string;
   cmcId: string;
   currentPrice?: {
@@ -105,6 +106,7 @@ export default async function handler(
       select: {
         id: true,
         name: true,
+        slug: true,
         ticker: true,
         cmcId: true,
         rank: true,

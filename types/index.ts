@@ -2,6 +2,7 @@ export interface Token {
   id: string;
   ticker: string;
   name: string;
+  slug: string;
   rank: number;
   price: number;
   priceChange: {
@@ -57,6 +58,7 @@ export interface TokenDescription {
   id: string;
   ticker: string;
   name: string;
+  slug: string;
   rank?: number;
   currentPrice: {
     usd: number;

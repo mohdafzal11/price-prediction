@@ -5,7 +5,6 @@ import axios from 'axios';
 import { formatPercentageValue } from '../../utils/formatValues';
 import { getApiUrl } from 'utils/config';
 import { useRouter } from 'next/router';
-import { generateTokenUrl } from 'utils/url';
 import type { IconType } from 'react-icons';
 import CurrencySelector from '../CurrencySelector/CurrencySelector';
 import Image from 'next/image';
@@ -13,6 +12,7 @@ import Image from 'next/image';
 interface MarqueeToken {
   id: string;
   name: string;
+  slug: string;
   ticker: string;
   price: number;
   priceChange24h: number;
@@ -190,8 +190,8 @@ const MarqueeScroll: React.FC = () => {
     fetchTokens();
   }, []);
 
-  const handleCardClick = useCallback((name: string, ticker: string) => {
-    router.push(generateTokenUrl(name, ticker));
+  const handleCardClick = useCallback((slug: string) => {
+    router.push(`/${slug}`);
   }, [router]);
 
  
@@ -202,7 +202,7 @@ const MarqueeScroll: React.FC = () => {
           {tokens.map((token, index) => (
             <TokenItem
               key={`${token.id}-${index}`}
-              onClick={() => handleCardClick(token.name, token.ticker)}
+              onClick={() => handleCardClick(token.slug)}
             >
               <TokenImage>
                 <img

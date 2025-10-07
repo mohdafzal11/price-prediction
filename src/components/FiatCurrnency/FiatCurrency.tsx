@@ -8,7 +8,7 @@ import {
     Heading,
     Price,
 } from './FiatCurrency.styled';
-import { generateConverterUrl, generateTokenUrl } from 'utils/url';
+import { generateConverterUrl  , generateTokenUrl } from 'utils/url';
 import { useCurrency } from 'src/context/CurrencyContext';
 import { CURRENCIES, CurrencyCode } from 'src/context/CurrencyContext';
 import CustomLink from 'components/CustomLink/CustomLink';
@@ -50,7 +50,7 @@ const FiatCurrency: React.FC<FiatCurrencyProps> = ({ coin }) => {
             <CryptoList>
                 {Object.values(CURRENCIES).map((currency) => (
                     <div key={currency.code}>
-                            <CustomLink style={{ textDecoration: 'none' }} href={generateConverterUrl(generateTokenUrl(coin.name,coin.ticker),generateTokenUrl(currency.name,currency.code))}>
+                            <CustomLink style={{ textDecoration: 'none' }} href={generateConverterUrl(coin.slug ,generateTokenUrl(currency.name,currency.code))}>
                                 <CryptoItem>
                                     <CoinName>{currency.flag} {coin.ticker}/{currency.code}</CoinName>
                                     <CoinTicker>{currency.name}</CoinTicker>

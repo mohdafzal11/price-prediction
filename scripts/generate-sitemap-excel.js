@@ -49,21 +49,6 @@ const argv = yargs(hideBin(process.argv))
 
 const prisma = new PrismaClient();
 
-// Helper function to generate token URL slug (copied from utils/url.js)
-function generateTokenUrl(name, ticker) {
-  if (!name || !ticker) return '';
-  
-  // Convert to lowercase and remove spaces/special chars
-  const formattedName = name
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-');
-  
-  const formattedTicker = ticker.toLowerCase();
-  
-  return `${formattedName}-${formattedTicker}`;
-}
-
 // Get the base URL from environment variables or command line
 const getBaseUrl = () => {
   return 'https://droomdroom.com/price';
@@ -110,6 +95,7 @@ async function generateSitemapExcel() {
     select: {
       id: true,
       name: true,
+      slug: true,
       ticker: true,
       rank: true,
       inSitemap: true,
@@ -168,7 +154,7 @@ async function generateSitemapExcel() {
   // Create data for the Excel file
   const baseUrl = getBaseUrl();
   const excelData = tokens.map(token => {
-    const slug = generateTokenUrl(token.name, token.ticker);
+    const slug = token.slug;
     const mainUrl = `${baseUrl}/${slug}`;
     const predictionUrl = `${baseUrl}/prediction/${slug}`;
     const mainTitle = generateMainTitle(token.name, token.ticker);

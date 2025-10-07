@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../src/lib/prisma';
 import getConfig from 'next/config';
-import { generateTokenUrl } from '../../src/utils/url';
 
 // Get max tokens from environment variable
 const MAX_TOKENS = parseInt(process.env.NEXT_PUBLIC_MAX_TOKENS || '2000');
@@ -35,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       select: {
         name: true,
+        slug: true,
         ticker: true,
         updatedAt: true,
         rank: true,
@@ -64,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       <!-- Dynamic Token Pages -->
       ${tokens.map(token => `
         <url>
-          <loc>${escapeXml(`${SITE_URL}${publicRuntimeConfig.basePath}/${generateTokenUrl(token.name, token.ticker)}`)}</loc>
+          <loc>${escapeXml(`${SITE_URL}${publicRuntimeConfig.basePath}/${token.slug}`)}</loc>
           <lastmod>${token.updatedAt.toISOString()}</lastmod>
           <changefreq>hourly</changefreq>
           <priority>0.9</priority>

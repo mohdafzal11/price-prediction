@@ -33,7 +33,7 @@ export default async function handler(
       where: {
         rank: { 
           not: null,
-          lte: MAX_TOKENS 
+          lte: MAX_TOKENS
         }
       }
     });
@@ -46,6 +46,7 @@ export default async function handler(
       },
       select: {
         id: true,
+        slug:true,
         ticker: true,
         name: true,
         rank: true,
@@ -57,7 +58,7 @@ export default async function handler(
       where: {
         rank: { 
           not: null,
-          lte: MAX_TOKENS
+          lte: MAX_TOKENS 
         }
       },
     });
@@ -123,6 +124,7 @@ export default async function handler(
       
       return {
         id: token.id,
+        slug : token.slug,
         ticker: token.ticker,
         name: token.name,
         rank: token.rank,
@@ -151,6 +153,7 @@ export default async function handler(
         hasMore: skip + pageSize < totalCount,
       }
     }
+
     await redisHandler.set(`coins_${page}_${pageSize}`, data, {expirationTime:30*60});
     
     res.status(200).json(data);

@@ -1,6 +1,5 @@
 import { GetServerSideProps } from 'next';
 import prisma from '../../src/lib/prisma';
-import { generateTokenUrl } from '../../src/utils/url';
 
 // This is a placeholder component that won't actually be rendered
 const CategorySitemap = () => null;
@@ -52,6 +51,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
           select: {
             id: true,
             name: true,
+            slug  : true,
             ticker: true,
             updatedAt: true,
             rank: true
@@ -73,7 +73,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       ${tokens.map(token => `
         <url>
-          <loc>${escapeXml(`${baseUrl}/${generateTokenUrl(token.name, token.ticker)}`)}</loc>
+          <loc>${escapeXml(`${baseUrl}/${token.slug}`)}</loc>
           <lastmod>${token.updatedAt.toISOString()}</lastmod>
           <changefreq>hourly</changefreq>
           <priority>${token.rank && token.rank <= 100 ? '0.9' : token.rank && token.rank <= 500 ? '0.8' : '0.7'}</priority>

@@ -34,6 +34,7 @@ export default async function handler(
       },
       select: {
         id: true,
+        slug : true,
         ticker: true,
         name: true,
         rank: true,
@@ -78,6 +79,7 @@ export default async function handler(
       
       return {
         id: token.id,
+        slug: token.slug,
         ticker: token.ticker,
         name: token.name,
         rank: token.rank,

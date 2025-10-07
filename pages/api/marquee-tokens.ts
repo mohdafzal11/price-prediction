@@ -7,6 +7,7 @@ const MAX_TOKENS = parseInt(process.env.NEXT_PUBLIC_MAX_TOKENS || '2000');
 
 interface MarqueeToken {
   id: string;
+  slug: string;
   name: string;
   ticker: string;
   price: number;
@@ -47,6 +48,7 @@ export default async function handler(
 
     const marqueeTokens: MarqueeToken[] = filteredTokens.map((token: any) => ({
       id: token.id,
+      slug: token.slug,
       name: token.name,
       ticker: token.ticker,
       price: token.price,

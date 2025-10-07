@@ -13,13 +13,13 @@ const EmptyPlaceholder = () => null;
 const LayoutComponent: FC<PropsWithChildren> = React.memo(({ children }) => {
 	return (
 		<>
-			{/* <Header /> */}
+			<Header />
 			<Navbar />
 			<Main>
 			{children}
 		</Main>
 		<Suspense fallback={<FooterPlaceholder />}>
-			{/* <Footer /> */}
+			<Footer />
 		</Suspense>
 		{/* <Suspense fallback={<EmptyPlaceholder />}>
 			<LoginSignup />
